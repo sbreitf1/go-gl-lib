@@ -287,6 +287,17 @@ func generateBitmapFont(src bitmapFontSource) (*BitmapFont, error) {
 		font.kernings = nil
 	}
 
+	// invisible pixels are often set to black which leads to ugly artifactes on interpolation
+	// making the text nearly unreadable. set all color information to white so only the alpha
+	// component represents the letters leading to much better results when scaling a font
+	for y := 0; y < texHeight; y++ {
+		for x := 0; x < texWidth; x++ {
+			c := font.image.At(x, y)
+			_, _, _, a := c.RGBA()
+			font.image.Set(x, y, color.RGBA{R: 255, G: 255, B: 255, A: uint8(a)})
+		}
+	}
+
 	return font, nil
 }
 
@@ -453,5 +464,5 @@ func MeasureString(str string, font *Font, opts *DrawStringOptions) mgl32.Vec2 {
 		}
 	}
 
-	return [2]float32{maxWidth, float32(len(lines)) * font.lineHeight}
+	return [2]float32{maxWidth, actualOpts.Scale * float32(len(lines)) * font.lineHeight}
 }

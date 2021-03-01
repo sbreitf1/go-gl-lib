@@ -20,7 +20,7 @@ const (
 	windowWidth     = 800
 	windowHeight    = 600
 	tolerance       = 15
-	maxAvgTolerance = 0.0001
+	maxAvgTolerance = 0.01
 
 	// activate this value to render new test cases
 	createMissingImages = true
@@ -45,6 +45,15 @@ func main() {
 	}
 	defer gl2d.Terminate()
 
+	//TODO test image
+	//TODO test image clipping
+	//TODO test shape clipping
+	//TODO test text clipping
+	//TODO test custom fonts
+	//TODO test alpha blending
+	//TODO test line with from=to
+	//TODO test insane lineWidth parameters
+
 	tests := []testDefinition{
 		{"empty", func() {}},
 		{"colors", func() {
@@ -56,26 +65,46 @@ func main() {
 			gl2d.FillRectangle([2]float32{20, 10}, [2]float32{10, 10}, gl2d.Yellow)
 			gl2d.FillRectangle([2]float32{0, 20}, [2]float32{10, 10}, gl2d.Cyan)
 			gl2d.FillRectangle([2]float32{10, 20}, [2]float32{10, 10}, gl2d.Magenta)
+			gl2d.FillRectangle([2]float32{20, 20}, [2]float32{10, 10}, [4]float32{0.17, 0.89, 0.54, 1})
 		}},
 		{"all-shapes", func() {
 			gl2d.FillCircle([2]float32{50, 50}, 40, gl2d.White)
 			gl2d.DrawCircle([2]float32{150, 50}, 40, 1, gl2d.White)
+			gl2d.FillCircle([2]float32{150, 50}, 0, gl2d.White)
 			gl2d.DrawLine([2]float32{200, 20}, [2]float32{300, 80}, 1, gl2d.White)
 			gl2d.FillRectangle([2]float32{20, 150}, [2]float32{80, 80}, gl2d.White)
 			gl2d.DrawRectangle([2]float32{120, 150}, [2]float32{80, 80}, 1, gl2d.White)
+			gl2d.DrawLine([2]float32{235, 117}, [2]float32{235, 180}, 1, gl2d.White)
+			gl2d.DrawLine([2]float32{220, 205}, [2]float32{260, 205}, 1, gl2d.White)
+			gl2d.DrawLine([2]float32{260, 160}, [2]float32{290, 190}, 1, gl2d.White)
+			gl2d.FillCircle([2]float32{400.25, 50.5}, 40.25, gl2d.White)
+			gl2d.DrawCircle([2]float32{500.25, 50.75}, 40.75, 1.25, gl2d.White)
+			gl2d.DrawLine([2]float32{650.25, 20}, [2]float32{689.75, 80.5}, 1.75, gl2d.White)
+			gl2d.FillRectangle([2]float32{420.75, 150.5}, [2]float32{80.5, 80.25}, gl2d.White)
+			gl2d.DrawRectangle([2]float32{520.25, 150.75}, [2]float32{80.5, 80.5}, 1.75, gl2d.White)
+			gl2d.FillRectangle([2]float32{650.5, 150.5}, [2]float32{80, 80}, gl2d.White)
 		}},
 		{"text", func() {
 			gl2d.DrawString("foo bar", [2]float32{10, 10}, gl2d.DefaultFont(), gl2d.White, nil)
 			gl2d.DrawString("bigger text", [2]float32{10, 40}, gl2d.DefaultFont(), gl2d.White, &gl2d.DrawStringOptions{Scale: 2})
 			gl2d.DrawString("float pos", [2]float32{200.5, 10}, gl2d.DefaultFont(), gl2d.White, nil)
 			gl2d.DrawString("float pos rounded", [2]float32{200.5, 40}, gl2d.DefaultFont(), gl2d.White, &gl2d.DrawStringOptions{RoundPos: true})
+			sizeDefault := gl2d.MeasureString("measure this!", gl2d.DefaultFont(), nil)
+			gl2d.FillRectangle([2]float32{10, 100}, sizeDefault, gl2d.Red)
+			gl2d.DrawString("measure this!", [2]float32{10, 100}, gl2d.DefaultFont(), gl2d.White, nil)
+			sizeScaled := gl2d.MeasureString("measure this!", gl2d.DefaultFont(), &gl2d.DrawStringOptions{Scale: 2})
+			gl2d.FillRectangle([2]float32{150, 100}, sizeScaled, gl2d.Red)
+			gl2d.DrawString("measure this!", [2]float32{150, 100}, gl2d.DefaultFont(), gl2d.White, &gl2d.DrawStringOptions{Scale: 2})
 			//TODO tabs
 			//TODO center
 		}},
-		{"complex-rgb", func() {
+		{"complex", func() {
 			gl2d.DrawCircle([2]float32{100, 100}, 50, 1, gl2d.Green)
 			gl2d.FillCircle([2]float32{500, 500}, 50, gl2d.Blue)
 			gl2d.FillRectangle([2]float32{100, 250}, [2]float32{300, 200}, gl2d.Red)
+			gl2d.DrawLine([2]float32{44, 399}, [2]float32{690, 549}, 13, gl2d.Yellow)
+			gl2d.FillRectangle([2]float32{377, 232}, [2]float32{142, 346}, gl2d.White.Alpha(0.5))
+			gl2d.DrawLine([2]float32{451, 218}, [2]float32{536, 367}, 2, gl2d.Green.MulColor(0.5))
 		}},
 	}
 
@@ -233,7 +262,7 @@ func compareImages(expected, actual *image.RGBA) (float64, float64, *image.RGBA,
 			if diffColor.B > maxDiff {
 				maxDiff = diffColor.B
 			}
-			avgDiff += int64(diffColor.R) + int64(diffColor.G) + int64(diffColor.B)
+			avgDiff += int64(diffColor.R)*int64(diffColor.R) + int64(diffColor.G)*int64(diffColor.G) + int64(diffColor.B)*int64(diffColor.B)
 		}
 	}
 	return float64(maxDiff), float64(avgDiff) / float64(3*width*height), diff, nil
