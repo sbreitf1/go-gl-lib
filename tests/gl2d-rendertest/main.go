@@ -23,7 +23,7 @@ const (
 	maxAvgTolerance = 0.05
 
 	// activate this value to render new test cases
-	createMissingImages = true
+	createMissingImages = false
 )
 
 type testDefinition struct {
