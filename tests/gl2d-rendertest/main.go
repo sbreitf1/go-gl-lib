@@ -20,7 +20,7 @@ const (
 	windowWidth     = 800
 	windowHeight    = 600
 	tolerance       = 15
-	maxAvgTolerance = 0.01
+	maxAvgTolerance = 0.05
 
 	// activate this value to render new test cases
 	createMissingImages = true
