@@ -4,6 +4,9 @@ import (
 	"github.com/go-gl/glfw/v3.3/glfw"
 )
 
+// These key codes are inspired by the USB HID Usage Tables v1.12 (p. 53-60),
+// but re-arranged to map to 7-bit ASCII for printable keys (function keys are
+// put in the 256+ range).
 const (
 	KeyUp        = Key(glfw.KeyUp)
 	KeyDown      = Key(glfw.KeyDown)
@@ -21,7 +24,10 @@ const (
 	KeySpace     = Key(glfw.KeySpace)
 	KeyEscape    = Key(glfw.KeyEscape)
 	KeyEnter     = Key(glfw.KeyEnter)
+)
 
+// Modifier keys.
+const (
 	ModShift    = ModifierKey(glfw.ModShift)
 	ModAlt      = ModifierKey(glfw.ModAlt)
 	ModControl  = ModifierKey(glfw.ModControl)
