@@ -48,10 +48,7 @@ func main() {
 
 	//TODO test image
 	//TODO test image clipping
-	//TODO test shape clipping
-	//TODO test text clipping
 	//TODO test custom fonts
-	//TODO test alpha blending
 	//TODO test line with from=to
 	//TODO test insane lineWidth parameters
 
@@ -106,6 +103,26 @@ func main() {
 			gl2d.DrawLine([2]float32{44, 399}, [2]float32{690, 549}, 13, gl2d.Yellow)
 			gl2d.FillRectangle([2]float32{377, 232}, [2]float32{142, 346}, gl2d.White.Alpha(0.5))
 			gl2d.DrawLine([2]float32{451, 218}, [2]float32{536, 367}, 2, gl2d.Green.MulColor(0.5))
+		}},
+		{"clip-shapes", func() {
+			gl2d.SetClipRect(gl2d.Quad{Left: 100, Right: 500, Top: 100, Bottom: 400})
+			gl2d.FillRectangle([2]float32{50, 50}, [2]float32{100, 100}, gl2d.White)
+			gl2d.DrawRectangle([2]float32{450, 350}, [2]float32{100, 100}, 3, gl2d.White)
+			gl2d.DrawCircle([2]float32{299.5, 249.5}, 210, 1, gl2d.White)
+			gl2d.FillCircle([2]float32{100, 400}, 30, gl2d.White)
+			gl2d.DrawLine([2]float32{300, 50}, [2]float32{400, 450}, 3, gl2d.White)
+			gl2d.DrawLine([2]float32{50, 200}, [2]float32{550, 300}, 7, gl2d.White)
+			gl2d.FillCircle([2]float32{600, 200}, 40, gl2d.Green)
+			gl2d.ResetClipRect()
+			gl2d.FillCircle([2]float32{600, 400}, 40, gl2d.Blue)
+			gl2d.SetClipRect(gl2d.Quad{Left: 50, Right: 100, Top: 450, Bottom: 500})
+			gl2d.FillRectangle([2]float32{0, 0}, [2]float32{800, 600}, gl2d.Red)
+		}},
+		{"clip-text", func() {
+			gl2d.SetClipRect(gl2d.Quad{Left: 98, Right: 515, Top: 101, Bottom: 126})
+			gl2d.DrawString("out of bounds", [2]float32{80, 80}, gl2d.DefaultFont(), gl2d.White, &gl2d.DrawStringOptions{Scale: 5})
+			gl2d.SetClipRect(gl2d.Quad{Left: 100, Right: 130, Top: 180, Bottom: 200})
+			gl2d.DrawString("#", [2]float32{80, 130}, gl2d.DefaultFont(), gl2d.White, &gl2d.DrawStringOptions{Scale: 10})
 		}},
 	}
 

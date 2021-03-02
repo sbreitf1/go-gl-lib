@@ -151,13 +151,11 @@ func renderQuad(q Quad) {
 		return
 	}
 
-	//TODO clip quad
-
 	gl.Begin(gl.QUADS)
-	gl.Vertex3f(q.Left, q.Top, 0)
-	gl.Vertex3f(q.Right, q.Top, 0)
-	gl.Vertex3f(q.Right, q.Bottom, 0)
-	gl.Vertex3f(q.Left, q.Bottom, 0)
+	gl.Vertex3f(max32(clipRect.Left, q.Left), max32(clipRect.Top, q.Top), 0)
+	gl.Vertex3f(min32(clipRect.Right, q.Right), max32(clipRect.Top, q.Top), 0)
+	gl.Vertex3f(min32(clipRect.Right, q.Right), min32(clipRect.Bottom, q.Bottom), 0)
+	gl.Vertex3f(max32(clipRect.Left, q.Left), min32(clipRect.Bottom, q.Bottom), 0)
 	gl.End()
 }
 
@@ -166,8 +164,6 @@ func renderTexturedQuad(q Quad, uvTopLeft, uvBottomRight mgl32.Vec2) {
 		// quad is not visible on screen, nothing to draw
 		return
 	}
-
-	//TODO clip quad
 
 	uvLeft := uvTopLeft[0]
 	if q.Left < clipRect.Left {
@@ -188,12 +184,12 @@ func renderTexturedQuad(q Quad, uvTopLeft, uvBottomRight mgl32.Vec2) {
 
 	gl.Begin(gl.QUADS)
 	gl.TexCoord2f(uvLeft, uvTop)
-	gl.Vertex3f(q.Left, q.Top, 0)
+	gl.Vertex3f(max32(clipRect.Left, q.Left), max32(clipRect.Top, q.Top), 0)
 	gl.TexCoord2f(uvRight, uvTop)
-	gl.Vertex3f(q.Right, q.Top, 0)
+	gl.Vertex3f(min32(clipRect.Right, q.Right), max32(clipRect.Top, q.Top), 0)
 	gl.TexCoord2f(uvRight, uvBottom)
-	gl.Vertex3f(q.Right, q.Bottom, 0)
+	gl.Vertex3f(min32(clipRect.Right, q.Right), min32(clipRect.Bottom, q.Bottom), 0)
 	gl.TexCoord2f(uvLeft, uvBottom)
-	gl.Vertex3f(q.Left, q.Bottom, 0)
+	gl.Vertex3f(max32(clipRect.Left, q.Left), min32(clipRect.Bottom, q.Bottom), 0)
 	gl.End()
 }
