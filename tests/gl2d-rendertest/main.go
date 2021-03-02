@@ -6,6 +6,7 @@ import (
 	"image/color"
 	"image/draw"
 	"image/png"
+	"math"
 	"os"
 	"runtime"
 
@@ -20,7 +21,7 @@ const (
 	windowWidth     = 800
 	windowHeight    = 600
 	tolerance       = 15
-	maxAvgTolerance = 0.05
+	maxAvgTolerance = 0.1
 
 	// activate this value to render new test cases
 	createMissingImages = false
@@ -179,6 +180,8 @@ func gl2dTest(w *glui.MainWindow, test testDefinition) error {
 
 	if maxDiff > tolerance || avgDiff > maxAvgTolerance {
 		return fmt.Errorf("maxDiff: %f   ;   avgDiff: %f", maxDiff, avgDiff)
+	} else if maxDiff > 0 || avgDiff > 0 {
+		logrus.Warnf("no exact match for %q: maxDiff: %f   ;   avgDiff: %f", test.Name, maxDiff, avgDiff)
 	}
 
 	return nil
@@ -265,6 +268,21 @@ func compareImages(expected, actual *image.RGBA) (float64, float64, *image.RGBA,
 			avgDiff += int64(diffColor.R)*int64(diffColor.R) + int64(diffColor.G)*int64(diffColor.G) + int64(diffColor.B)*int64(diffColor.B)
 		}
 	}
+
+	// amplify to normalize the diff image
+	if maxDiff > 0 {
+		colorFactor := float64(255) / float64(maxDiff)
+		amplify := func(val uint32) uint8 {
+			return uint8(math.Round(colorFactor * float64(val)))
+		}
+		for y := 0; y < height; y++ {
+			for x := 0; x < width; x++ {
+				r, g, b, _ := diff.At(x, y).RGBA()
+				diff.Set(x, y, color.RGBA{R: amplify(r), G: amplify(g), B: amplify(b), A: 255})
+			}
+		}
+	}
+
 	return float64(maxDiff), float64(avgDiff) / float64(3*width*height), diff, nil
 }
 
