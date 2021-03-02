@@ -31,6 +31,9 @@ type MainWindow struct {
 	mouseButtonStates map[MouseButton]bool
 	mouseX, mouseY    float64
 	mouseCaptured     bool
+
+	FixedPreFrameSleep     time.Duration
+	FixedPollEventsTimeout time.Duration
 }
 
 // Init initializes GLFW and OpenGL with the given main window properties.
@@ -113,11 +116,12 @@ func (w *MainWindow) Run() {
 	// https://www.iditect.com/how-to/53890601.html
 	glfw.SwapInterval(0)
 
+	//TODO detect best sleeping times using the old frame time and desired refresh rate
+
 	begin := time.Now()
 	last := time.Duration(0)
 	for !w.glfwWindow.ShouldClose() {
-		//TODO detect best sleeping time using the old frame time and desired refresh rate
-		time.Sleep(10 * time.Millisecond)
+		time.Sleep(w.FixedPreFrameSleep)
 
 		t := time.Since(begin)
 		dt := (t - last)
@@ -127,7 +131,7 @@ func (w *MainWindow) Run() {
 		w.totalSimTime += dt
 		last = t
 
-		glfw.WaitEventsTimeout(0.006)
+		glfw.WaitEventsTimeout(w.FixedPollEventsTimeout.Seconds())
 
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
